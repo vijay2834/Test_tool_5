@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goal Setting Framework</title>
+    <meta name="description" content="Automated goal calculation tool using Excel data and customizable business rules">
+    <meta name="keywords" content="goal setting, performance management, excel, business rules, automation">
+    
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- JavaScript Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-banner">
+            GOAL SETTING FRAMEWORK
+        </div>
+
+        <!-- Step progress indicator -->
+        <div class="step-progress">
+            <div class="step active" id="step1">
+                <div class="step-icon">1</div>
+                <div class="step-label">Upload Data</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-icon">2</div>
+                <div class="step-label">Select Processes</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-icon">3</div>
+                <div class="step-label">Create Rules</div>
+            </div>
+            <div class="step" id="step4">
+                <div class="step-icon">4</div>
+                <div class="step-label">Goal Thresholds</div>
+            </div>
+            <div class="step" id="step5">
+                <div class="step-icon">5</div>
+                <div class="step-label">Final Results</div>
+            </div>
+        </div>
+
+        <!-- Section 1: Upload Data -->
+        <div id="section1" class="section active">
+            <div class="section-title">Upload Excel Data File(s)</div>
+            <div class="mb-2">
+                Select one or multiple Excel files containing process data. 
+                <span class="text-muted">The first column will be treated as the process identifier. Date columns will be converted to Month_Year format.</span>
+            </div>
+            
+            <div class="file-upload-area mb-3 mt-3 p-4 border rounded bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <input type="file" id="fileUpload" class="form-control" style="max-width: 500px;" multiple accept=".xlsx,.xls">
+                    </div>
+                    <button class="button-blue" id="uploadBtn">
+                        <i class="fa fa-upload"></i>
+                        Upload Files
+                    </button>
+                </div>
+            </div>
+            
+            <div id="uploadStatusMessage" class="alert alert-info mb-3 hidden">
+                Please upload at least one Excel file to continue.
+            </div>
+            
+            <div id="uploadedFilesList" class="mt-3 mb-3">
+                <!-- Uploaded files will be listed here -->
+            </div>
+            
+            <div class="data-preview mb-4">
+                <h5>Data Preview</h5>
+                <div id="dataPreview" class="border rounded p-3 bg-light">
+                    <div class="text-muted">Upload files to see data preview</div>
+                </div>
+            </div>
+            
+            <button id="btnToStep2" class="button-blue button-next" disabled>Continue to Select Processes</button>
+        </div>
+
+        <!-- Section 2: Select Processes -->
+        <div id="section2" class="section">
+            <div class="section-title">Select Process(es)</div>
+            <div class="mb-2">Choose the processes you want to create goals for</div>
+            
+            <div class="mb-3 mt-3">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>Available Processes</div>
+                                <div>
+                                    <button id="selectAllProcesses" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa fa-check-double"></i> Select All
+                                    </button>
+                                    <button id="clearAllProcesses" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa fa-times"></i> Clear All
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <select id="processDropdown" class="process-select form-select" multiple>
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header">Selected Processes</div>
+                            <div class="card-body">
+                                <div id="selectedProcesses" class="p-2 border rounded min-height-150">
+                                    <!-- Selected processes will be shown here -->
+                                    <div class="text-muted small">No processes selected</div>
+                                </div>
+                                <div class="mt-2 text-muted small">
+                                    <span id="processCountBadge" class="badge bg-primary">0</span> processes selected
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="processSelectionMessage" class="alert alert-info hidden">
+                Please select at least one process to continue.
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button id="btnBackToStep1" class="button-outline">
+                    <i class="fa fa-arrow-left"></i> Back to Upload Data
+                </button>
+                <button id="btnToStep3" class="button-blue" disabled>
+                    Continue to Create Rules <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 3: Create Rules -->
+        <div id="section3" class="section">
+            <div class="section-title">Create Goal Setting Rules</div>
+            
+            <div id="rulesInfoMessage" class="alert alert-info mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>Create rules to define how goals should be calculated based on your data. You can create complex nested rules and rules based on calculated goals.</div>
+                    <div>
+                        <button id="importRules" class="button-outline ms-2">
+                            <i class="fa fa-file-import"></i> Import Rules
+                        </button>
+                        <input type="file" id="importRulesInput" accept=".json" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Rule Builder Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>Rule Builder</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="ruleName" class="form-label">Rule Name <span class="text-danger">*</span></label>
+                                <input type="text" id="ruleName" class="form-control" placeholder="Enter a name for this rule">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ruleDescription" class="form-label">Rule Description (Optional)</label>
+                                <textarea id="ruleDescription" class="form-control" rows="2" placeholder="Enter a description for this rule"></textarea>
+                            </div>
+                            
+                            <div id="ruleContainer" class="mb-3">
+                                <!-- Rule builder will be inserted here -->
+                            </div>
+                            
+                            <div id="calculatedRuleOption" class="hidden mt-3">
+                                <div class="calculated-rule-header">
+                                    <h6 class="text-info mb-2">
+                                        <i class="fa fa-calculator"></i> Calculated Goal Rule
+                                    </h6>
+                                    <p class="text-muted small mb-3">
+                                        The rule below is based on the calculated goal (G2) from the base rule above.
+                                    </p>
+                                </div>
+                                <button id="addCalculatedRule" class="button-outline">
+                                    <i class="fa fa-plus-circle"></i>
+                                    Add Rule Based on Calculated Goal
+                                </button>
+                            </div>
+                            
+                            <div id="calculatedRuleContainer" class="mt-3 mb-3 hidden">
+                                <!-- Calculated rule will be inserted here -->
+                            </div>
+                            
+                            <div id="ruleValidationMessage" class="alert alert-warning hidden">
+                                Please fill in all required fields in the rule.
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-3">
+                                <div>
+                                    <button id="saveRule" class="button-blue">
+                                        <i class="fa fa-save"></i> Save Rule
+                                    </button>
+                                </div>
+                                <button id="clearRule" class="button-outline">
+                                    <i class="fa fa-eraser"></i> Clear Rule
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Saved Rules Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>Saved Rules</div>
+                                <div>
+                                    <button id="exportRules" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa fa-download"></i> Export All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="savedRulesContainer" class="saved-rules-container">
+                                <p class="text-muted">No saved rules yet.</p>
+                            </div>
+                            
+                            <div id="ruleActions" class="mt-3 hidden">
+                                <button id="downloadSelectedRules" class="btn btn-sm btn-outline-primary" disabled>
+                                    <i class="fa fa-file-download"></i> Download Selected
+                                </button>
+                                <button id="deleteSelectedRules" class="btn btn-sm btn-outline-danger" disabled>
+                                    <i class="fa fa-trash"></i> Delete Selected
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="noRulesWarning" class="alert alert-warning hidden">
+                Please create at least one rule before proceeding to the next step.
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button id="btnBackToStep2" class="button-outline">
+                    <i class="fa fa-arrow-left"></i> Back to Select Processes
+                </button>
+                <button id="btnToStep4" class="button-blue" disabled>
+                    Continue to Goal Thresholds <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 4: Goal Thresholds Settings -->
+        <div id="section4" class="section">
+            <div class="section-title">Goal Thresholds Settings</div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fa fa-sliders-h"></i> Base Point Spread (BPS) Settings
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="bpsThresholdInput" class="form-label">BPS Threshold</label>
+                                <div class="input-group">
+                                    <input type="number" id="bpsThresholdInput" class="form-control" value="50" min="0">
+                                    <span class="input-group-text">basis points</span>
+                                </div>
+                                <div class="form-text">This defines the spread between goal tiers (G1, G2, G3).</div>
+                            </div>
+                            
+                            <div class="bps-explanation mt-3">
+                                <ul class="list-group">
+                                    <li class="list-group-item"><span class="goal-tier g1-tier">G1</span>  Goal = G2 + BPS/100</li>
+                                    <li class="list-group-item"><span class="goal-tier g2-tier">G2</span>  Goal = Calculated goal</li>
+                                    <li class="list-group-item"><span class="goal-tier g3-tier">G3</span>  Goal = G2 - BPS/100</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fa fa-filter"></i> Rule Selection
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="savedRulesDropdown" class="form-label">Select Rules to Apply</label>
+                                <select id="savedRulesDropdown" class="form-select" multiple>
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                                <div class="form-text">Select one or more rules to apply for goal calculation.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fa fa-exclamation-triangle"></i> Null Value Handling
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="nullHandlingOption" class="form-label">How to handle null values in data?</label>
+                                <select id="nullHandlingOption" class="form-select">
+                                    <option value="ignore">Ignore Null (condition returns false)</option>
+                                    <option value="flag" selected>Flag/Report Null (stop calculation and report)</option>
+                                </select>
+                                <div class="form-text">
+                                    <strong>Ignore:</strong> Treats null conditions as false and continues rule processing.<br>
+                                    <strong>Flag:</strong> Stops calculation when null values are encountered and reports which columns have null values.
+                                </div>
+                            </div>
+                            
+                            <div class="null-handling-explanation">
+                                <div class="alert alert-info small">
+                                    <strong>Example:</strong> If Q1_2023 > FY_2024 and Q1_2023 is null:
+                                    <ul class="mb-0 mt-2">
+                                        <li><strong>Ignore:</strong> Condition evaluates to false, rule continues</li>
+                                        <li><strong>Flag:</strong> Shows "Q1_2023 is null" in results</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="goalThresholdMessage" class="alert alert-info hidden">
+                Please select at least one rule to apply for goal calculation.
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button id="btnBackToStep3" class="button-outline">
+                    <i class="fa fa-arrow-left"></i> Back to Create Rules
+                </button>
+                <button id="btnToStep5" class="button-blue" disabled>
+                    Calculate Goals and View Results <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 5: Final Results -->
+        <div id="section5" class="section">
+            <div class="section-title">Goal Setting Results</div>
+            
+            <div class="result-summary mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><span class="goal-tier g1-tier">G1</span> Goal</h5>
+                                <p class="card-text">G1 = G2 + <span id="bpsValueG1">0.5</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><span class="goal-tier g2-tier">G2</span> Goal</h5>
+                                <p class="card-text">Base calculated goal</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><span class="goal-tier g3-tier">G3</span> Goal</h5>
+                                <p class="card-text">G3 = G2 - <span id="bpsValueG3">0.5</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Actions Bar -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa fa-table text-primary"></i> 
+                            <strong>Final Results</strong>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button id="showDataDetails" class="btn btn-outline-primary btn-sm">
+                                <i class="fa fa-info-circle"></i> Show Details
+                            </button>
+                            <button id="exportResults" class="btn btn-primary btn-sm">
+                                <i class="fa fa-file-excel"></i> Export to Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="finalResultsTable" class="table-responsive">
+                        <!-- Final results will be displayed here -->
+                        <div class="text-center p-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Calculating results...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rule Application Details Section -->
+            <div class="rule-application-details mb-4" id="ruleApplicationDetails" style="display: none;">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa fa-list-alt"></i> Rule Application Details
+                            </div>
+                            <button id="hideDataDetails" class="btn btn-outline-light btn-sm">
+                                <i class="fa fa-times"></i> Hide
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="ruleApplicationSummary">
+                            <!-- Rule application details will be shown here -->
+                            <div class="text-center p-3">
+                                <div class="spinner-border spinner-border-sm text-info" role="status">
+                                    <span class="visually-hidden">Loading details...</span>
+                                </div>
+                                <p class="mt-2 mb-0 text-muted">Loading rule application details...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enhanced Help Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa fa-question-circle text-info"></i> 
+                            <strong>Understanding Your Results</strong>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#helpSection">
+                            <i class="fa fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse" id="helpSection">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Goal Tiers Explained</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span><span class="goal-tier g1-tier">G1</span> Stretch Goal</span>
+                                        <span class="text-muted">G2 + BPS threshold</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span><span class="goal-tier g2-tier">G2</span> Target Goal</span>
+                                        <span class="text-muted">Main calculated goal</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span><span class="goal-tier g3-tier">G3</span> Minimum Goal</span>
+                                        <span class="text-muted">G2 - BPS threshold</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Possible Results</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <span class="badge bg-success me-2">Calculated Goals</span>
+                                        Rules were successfully applied
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge bg-warning me-2">All conditions failed</span>
+                                        No rule conditions were met
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge bg-info me-2">Column is null</span>
+                                        Required data was missing
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button id="btnBackToStep4" class="button-outline">
+                    <i class="fa fa-arrow-left"></i> Back to Goal Thresholds
+                </button>
+                <button id="btnRestartProcess" class="button-blue">
+                    <i class="fa fa-redo"></i> Start New Goal Setting
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load debug console for troubleshooting -->
+    <div id="debugConsole" class="hidden">
+        <div class="card">
+            <div class="card-header">Debug Console</div>
+            <div class="card-body">
+                <pre id="debugOutput"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script loading order is important for proper initialization -->
+    <script src="js/data-handler.js"></script>
+    <script src="js/rule-storage.js"></script>
+    <script src="js/rule-builder.js"></script>
+    <script src="js/goal-processor.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

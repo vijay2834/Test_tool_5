@@ -1,0 +1,215 @@
+{
+    "version": "2.1",
+    "exportDate": "2025-05-12T14:30:00.000Z",
+    "appInfo": {
+      "name": "Goal Setting Framework",
+      "creator": "Enhanced Rule Builder"
+    },
+    "rules": [
+      {
+        "id": 1651234567890,
+        "name": "Standard Performance Increase",
+        "description": "Increases goal by 10% for processes with performance above baseline",
+        "rule": {
+          "baseRule": {
+            "condition": {
+              "leftColumn": "Current_Performance",
+              "operator": ">",
+              "rightType": "value",
+              "rightValue": "80"
+            },
+            "action": {
+              "column": "G2_goal",
+              "type": "percent-increase",
+              "value": "10"
+            }
+          }
+        },
+        "created": "2025-05-10T09:15:00.000Z",
+        "lastModified": "2025-05-10T09:15:00.000Z"
+      },
+      {
+        "id": 1651234567891,
+        "name": "Tiered Target Setting",
+        "description": "Sets different increase percentages based on current performance tiers",
+        "rule": {
+          "baseRule": {
+            "condition": {
+              "leftColumn": "Current_Performance",
+              "operator": ">=",
+              "rightType": "value",
+              "rightValue": "90"
+            },
+            "action": {
+              "column": "G2_goal",
+              "type": "percent-increase",
+              "value": "5"
+            },
+            "nestedRules": [
+              {
+                "condition": {
+                  "leftColumn": "Current_Performance",
+                  "operator": ">=",
+                  "rightType": "value",
+                  "rightValue": "70",
+                  "andConditions": [
+                    {
+                      "leftColumn": "Current_Performance",
+                      "operator": "<",
+                      "rightType": "value",
+                      "rightValue": "90"
+                    }
+                  ]
+                },
+                "action": {
+                  "column": "G2_goal",
+                  "type": "percent-increase",
+                  "value": "10"
+                }
+              },
+              {
+                "condition": {
+                  "leftColumn": "Current_Performance",
+                  "operator": "<",
+                  "rightType": "value",
+                  "rightValue": "70"
+                },
+                "action": {
+                  "column": "G2_goal",
+                  "type": "percent-increase",
+                  "value": "15"
+                }
+              }
+            ]
+          }
+        },
+        "created": "2025-05-11T10:30:00.000Z",
+        "lastModified": "2025-05-11T14:20:00.000Z"
+      },
+      {
+        "id": 1651234567892,
+        "name": "Complex Process Rule",
+        "description": "Complex rule with multiple conditions for different process scenarios",
+        "rule": {
+          "baseRule": {
+            "condition": {
+              "leftColumn": "Category",
+              "operator": "=",
+              "rightType": "value",
+              "rightValue": "Critical"
+            },
+            "action": {
+              "column": "G2_goal",
+              "type": "percent-increase",
+              "value": "12"
+            },
+            "elseAction": {
+              "column": "G2_goal",
+              "type": "percent-increase",
+              "value": "8"
+            }
+          },
+          "calculatedRule": {
+            "condition": {
+              "leftColumn": "G2_calculated",
+              "operator": ">",
+              "rightType": "value",
+              "rightValue": "95"
+            },
+            "action": {
+              "column": "G2_goal",
+              "type": "value",
+              "value": "95"
+            }
+          }
+        },
+        "created": "2025-05-12T13:10:00.000Z",
+        "lastModified": "2025-05-12T13:10:00.000Z"
+      },
+      {
+        "id": 1651234567893,
+        "name": "Department-Based Goals",
+        "description": "Sets different goals based on department and current metrics",
+        "rule": {
+          "baseRule": {
+            "condition": {
+              "leftColumn": "Department",
+              "operator": "=",
+              "rightType": "value",
+              "rightValue": "Sales"
+            },
+            "action": {
+              "column": "G2_goal",
+              "type": "percent-increase",
+              "value": "15"
+            },
+            "nestedRules": [
+              {
+                "condition": {
+                  "leftColumn": "Department",
+                  "operator": "=",
+                  "rightType": "value",
+                  "rightValue": "Operations"
+                },
+                "action": {
+                  "column": "G2_goal",
+                  "type": "percent-increase",
+                  "value": "10"
+                }
+              },
+              {
+                "condition": {
+                  "leftColumn": "Department",
+                  "operator": "=",
+                  "rightType": "value",
+                  "rightValue": "Finance"
+                },
+                "action": {
+                  "column": "G2_goal",
+                  "type": "percent-increase",
+                  "value": "8"
+                },
+                "andConditions": [
+                  {
+                    "leftColumn": "Current_Performance",
+                    "operator": "<",
+                    "rightType": "value",
+                    "rightValue": "85"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "created": "2025-05-12T09:45:00.000Z",
+        "lastModified": "2025-05-12T09:45:00.000Z"
+      },
+      {
+        "id": 1651234567894,
+        "name": "Value Comparison Rule",
+        "description": "Sets goals by comparing two metrics values",
+        "rule": {
+          "baseRule": {
+            "condition": {
+              "leftColumn": "Metric_1",
+              "operator": ">",
+              "rightType": "value",
+              "rightValue": "Metric_2"
+            },
+            "action": {
+              "column": "G2_goal",
+              "type": "multiply",
+              "value": "1.2"
+            },
+            "elseAction": {
+              "column": "G2_goal",
+              "type": "multiply",
+              "value": "1.1"
+            }
+          }
+        },
+        "created": "2025-05-09T11:30:00.000Z",
+        "lastModified": "2025-05-09T14:15:00.000Z"
+      }
+    ]
+  }
