@@ -623,7 +623,7 @@ const ruleBuilder = {
                 <!-- THEN Section -->
                 <div class="rule-section then-section">
                     <div class="section-header">
-                        <span class="section-label">THEN</span>
+                        <span class="section-label">THEN (New G2 will be calculated as below)</span>
                         <button class="toggle-section" title="Collapse section">
                             <i class="fa fa-chevron-down"></i>
                         </button>
