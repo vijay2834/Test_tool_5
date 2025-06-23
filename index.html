@@ -46,7 +46,7 @@
         .icon-refresh::before { content: "🔄 "; }
         .icon-clear::before { content: "🧹 "; }
         .icon-import::before { content: "📂 "; }
-        .icon-double-check::before { content: "✅✅ "; }
+        .icon-double-check::before { content: "✅ "; }
     </style>
 </head>
 <body>
@@ -358,6 +358,15 @@
                                 <div class="form-text">
                                     <strong>Ignore:</strong> Treats null conditions as false and continues rule processing.<br>
                                     <strong>Flag:</strong> Stops calculation when null values are encountered and reports which columns have null values.
+                                </div>
+                            </div>
+                            <div class="null-handling-explanation">
+                                <div class="alert alert-info small">
+                                    <strong>Example:</strong> If Q1_2023 > FY_2024 and Q1_2023 is null:
+                                    <ul class="mb-0 mt-2">
+                                        <li><strong>Ignore:</strong> Condition evaluates to false, rule continues</li>
+                                        <li><strong>Flag:</strong> Shows "Q1_2023 is null" in results</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
