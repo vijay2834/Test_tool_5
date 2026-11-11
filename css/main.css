@@ -701,9 +701,18 @@ body {
     padding: 10px;
     border-bottom: 1px solid #eee;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
     transition: background-color 0.2s ease;
+}
+
+/* keep action buttons inside the narrow Saved Rules panel */
+.rule-item .rule-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-left: 26px;
 }
 
 .rule-item:hover {
